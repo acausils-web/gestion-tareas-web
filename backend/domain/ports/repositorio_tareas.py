@@ -13,5 +13,9 @@ class RepositorioTareas(ABC):
         pass
 
     @abstractmethod
+    def completar(self, id: int) -> bool:
+        pass
+
+    @abstractmethod
     def eliminar(self, id: int) -> bool:
         pass

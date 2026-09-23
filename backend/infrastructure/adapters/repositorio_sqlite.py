@@ -3,12 +3,12 @@ from pathlib import Path
 from datetime import date
 
 from domain.tarea import Tarea
+from domain.ports.repositorio_tareas import RepositorioTareas
 
 
-class RepositorioTareasSQLite:
+class RepositorioTareasSQLite(RepositorioTareas):
 
     def __init__(self):
-        # La base de datos se guardará directamente dentro de backend
         self.ruta_db = Path(__file__).resolve().parents[2] / "tareas.db"
         self.crear_tabla()
 
@@ -106,22 +106,6 @@ class RepositorioTareasSQLite:
 
         return tareas
 
-    def eliminar(self, id: int) -> bool:
-        conexion = self.conectar()
-        cursor = conexion.cursor()
-
-        cursor.execute(
-            "DELETE FROM tareas WHERE id = ?",
-            (id,)
-        )
-
-        eliminada = cursor.rowcount > 0
-
-        conexion.commit()
-        conexion.close()
-
-        return eliminada
-
     def completar(self, id: int) -> bool:
         conexion = self.conectar()
         cursor = conexion.cursor()
@@ -138,3 +122,19 @@ class RepositorioTareasSQLite:
         conexion.close()
 
         return actualizada
+
+    def eliminar(self, id: int) -> bool:
+        conexion = self.conectar()
+        cursor = conexion.cursor()
+
+        cursor.execute(
+            "DELETE FROM tareas WHERE id = ?",
+            (id,)
+        )
+
+        eliminada = cursor.rowcount > 0
+
+        conexion.commit()
+        conexion.close()
+
+        return eliminada

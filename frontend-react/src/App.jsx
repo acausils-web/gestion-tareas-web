@@ -1,10 +1,22 @@
  import { useEffect, useState } from "react";
 import "./App.css";
 
-const API_URL = "http://127.0.0.1:5000/tareas";
+import FormularioTarea from "./components/FormularioTarea.jsx";
+import TarjetaTarea from "./components/TarjetaTarea.jsx";
+import FiltrosTareas from "./components/FiltrosTareas.jsx";
+
+import {
+    obtenerTareas,
+    crearTarea,
+    completarTarea as completarTareaService,
+    eliminarTarea as eliminarTareaService
+} from "./tareasService.js";
+
 
 function App() {
+
     const [tareas, setTareas] = useState([]);
+
     const [busqueda, setBusqueda] = useState("");
     const [filtroEstado, setFiltroEstado] = useState("todas");
 
@@ -19,24 +31,29 @@ function App() {
     // ==========================================
 
     const cargarTareas = async () => {
+
         try {
-            const respuesta = await fetch(API_URL);
 
-            if (!respuesta.ok) {
-                throw new Error("No se pudieron cargar las tareas");
-            }
+            const datos = await obtenerTareas();
 
-            const datos = await respuesta.json();
             setTareas(datos);
 
         } catch (error) {
-            console.error("Error al cargar las tareas:", error);
+
+            console.error(
+                "Error al cargar las tareas:",
+                error
+            );
+
         }
+
     };
 
 
     useEffect(() => {
+
         cargarTareas();
+
     }, []);
 
 
@@ -45,39 +62,56 @@ function App() {
     // ==========================================
 
     const agregarTarea = async (evento) => {
+
         evento.preventDefault();
 
+        if (!titulo.trim()) {
+            return;
+        }
+
+
         const nuevaTarea = {
+
             id: Date.now(),
+
             titulo: titulo.trim(),
+
             descripcion: descripcion.trim(),
-            fecha_limite: fechaLimite || null,
+
+            fecha_limite:
+                fechaLimite || null,
+
             prioridad: prioridad
+
         };
 
-        try {
-            const respuesta = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(nuevaTarea)
-            });
 
-            if (!respuesta.ok) {
-                throw new Error("No se pudo crear la tarea");
-            }
+        try {
+
+            await crearTarea(nuevaTarea);
+
 
             setTitulo("");
+
             setDescripcion("");
+
             setFechaLimite("");
+
             setPrioridad("Baja");
+
 
             await cargarTareas();
 
+
         } catch (error) {
-            console.error("Error al crear la tarea:", error);
+
+            console.error(
+                "Error al crear la tarea:",
+                error
+            );
+
         }
+
     };
 
 
@@ -86,23 +120,48 @@ function App() {
     // ==========================================
 
     const completarTarea = async (id) => {
-        try {
-            const respuesta = await fetch(
-                `${API_URL}/${id}/completar`,
-                {
-                    method: "PUT"
-                }
-            );
 
-            if (!respuesta.ok) {
-                throw new Error("No se pudo completar la tarea");
-            }
+        try {
+
+            await completarTareaService(id);
 
             await cargarTareas();
 
+
         } catch (error) {
-            console.error("Error al completar la tarea:", error);
+
+            console.error(
+                "Error al completar la tarea:",
+                error
+            );
+
         }
+
+    };
+
+
+    // ==========================================
+    // ELIMINAR TAREA
+    // ==========================================
+
+    const eliminarTarea = async (id) => {
+
+        try {
+
+            await eliminarTareaService(id);
+
+            await cargarTareas();
+
+
+        } catch (error) {
+
+            console.error(
+                "Error al eliminar la tarea:",
+                error
+            );
+
+        }
+
     };
 
 
@@ -110,388 +169,264 @@ function App() {
     // FILTRAR TAREAS
     // ==========================================
 
-    const tareasFiltradas = tareas.filter((tarea) => {
-        const texto = busqueda.toLowerCase();
+    const tareasFiltradas = tareas.filter(
+        (tarea) => {
 
-        const coincideBusqueda =
-            tarea.titulo.toLowerCase().includes(texto) ||
-            (tarea.descripcion || "").toLowerCase().includes(texto);
+            const textoBusqueda =
+                busqueda
+                    .trim()
+                    .toLowerCase();
 
-        const coincideEstado =
-            filtroEstado === "todas" ||
-            tarea.estado.toLowerCase() === filtroEstado;
 
-        return coincideBusqueda && coincideEstado;
-    });
+            const tituloTarea =
+                (tarea.titulo || "")
+                    .toLowerCase();
 
+
+            const descripcionTarea =
+                (tarea.descripcion || "")
+                    .toLowerCase();
+
+
+            const coincideBusqueda =
+                tituloTarea.includes(
+                    textoBusqueda
+                ) ||
+                descripcionTarea.includes(
+                    textoBusqueda
+                );
+
+
+            const estadoTarea =
+                (tarea.estado || "")
+                    .toLowerCase();
+
+
+            const coincideEstado =
+                filtroEstado === "todas" ||
+                estadoTarea === filtroEstado;
+
+
+            return (
+                coincideBusqueda &&
+                coincideEstado
+            );
+
+        }
+    );
+
+
+    // ==========================================
+    // INTERFAZ
+    // ==========================================
 
     return (
+
         <main className="contenedor-principal">
 
-            {/* ENCABEZADO */}
+
+            {/* ================================
+                ENCABEZADO
+            ================================= */}
 
             <header className="encabezado">
 
                 <span className="subtitulo-superior">
+
                     GESTIÓN Y ORGANIZACIÓN
+
                 </span>
 
+
                 <h1>
+
                     Las Tareas de las
-                    <span>Ingenierías Colaborativas</span>
+
+                    <span>
+                        Ingenierías Colaborativas
+                    </span>
+
                 </h1>
 
+
                 <p>
-                    Organiza, consulta y administra tus actividades
-                    en un solo lugar.
+
+                    Organiza, consulta y administra
+                    tus actividades en un solo lugar.
+
                 </p>
 
             </header>
 
 
-            {/* NUEVA TAREA */}
+
+            {/* ================================
+                FORMULARIO
+            ================================= */}
+
+            <FormularioTarea
+
+                titulo={titulo}
+
+                setTitulo={setTitulo}
+
+                descripcion={descripcion}
+
+                setDescripcion={
+                    setDescripcion
+                }
+
+                fechaLimite={fechaLimite}
+
+                setFechaLimite={
+                    setFechaLimite
+                }
+
+                prioridad={prioridad}
+
+                setPrioridad={
+                    setPrioridad
+                }
+
+                agregarTarea={
+                    agregarTarea
+                }
+
+            />
+
+
+
+            {/* ================================
+                LISTADO DE TAREAS
+            ================================= */}
 
             <section className="panel">
 
-                <div className="titulo-seccion">
-
-                    <div>
-                        <span className="numero-seccion">
-                            01
-                        </span>
-
-                        <h2>
-                            Nueva tarea
-                        </h2>
-                    </div>
-
-                    <p>
-                        Registra una nueva actividad
-                    </p>
-
-                </div>
-
-
-                <form
-                    id="form-tarea"
-                    onSubmit={agregarTarea}
-                >
-
-                    <div className="campo">
-
-                        <label htmlFor="titulo">
-                            Título
-                        </label>
-
-                        <input
-                            id="titulo"
-                            type="text"
-                            placeholder="Escribe el título de la tarea"
-                            value={titulo}
-                            onChange={(evento) =>
-                                setTitulo(evento.target.value)
-                            }
-                            required
-                        />
-
-                    </div>
-
-
-                    <div className="campo">
-
-                        <label htmlFor="descripcion">
-                            Descripción
-                        </label>
-
-                        <textarea
-                            id="descripcion"
-                            placeholder="Describe brevemente la actividad"
-                            value={descripcion}
-                            onChange={(evento) =>
-                                setDescripcion(evento.target.value)
-                            }
-                        />
-
-                    </div>
-
-
-                    <div className="campo">
-
-                        <label htmlFor="fecha_limite">
-                            Fecha límite
-                        </label>
-
-                        <input
-                            id="fecha_limite"
-                            type="date"
-                            value={fechaLimite}
-                            onChange={(evento) =>
-                                setFechaLimite(evento.target.value)
-                            }
-                        />
-
-                    </div>
-
-
-                    <div className="campo">
-
-                        <label htmlFor="prioridad">
-                            Prioridad
-                        </label>
-
-                        <select
-                            id="prioridad"
-                            value={prioridad}
-                            onChange={(evento) =>
-                                setPrioridad(evento.target.value)
-                            }
-                        >
-
-                            <option value="Baja">
-                                Baja
-                            </option>
-
-                            <option value="Media">
-                                Media
-                            </option>
-
-                            <option value="Alta">
-                                Alta
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        className="btn-agregar"
-                    >
-                        Agregar tarea
-                    </button>
-
-                </form>
-
-            </section>
-
-
-            {/* MIS TAREAS */}
-
-            <section className="panel">
 
                 <div className="titulo-seccion">
 
+
                     <div>
+
                         <span className="numero-seccion">
+
                             02
+
                         </span>
 
+
                         <h2>
+
                             Mis tareas
+
                         </h2>
+
                     </div>
 
+
                     <p>
-                        Consulta y administra tus actividades
+
+                        Consulta y administra
+                        tus actividades
+
                     </p>
 
-                </div>
-
-
-                {/* BUSCADOR */}
-
-                <div className="contenedor-buscador">
-
-                    <label htmlFor="buscador">
-                        Buscar tarea
-                    </label>
-
-                    <input
-                        id="buscador"
-                        type="text"
-                        placeholder="Buscar por título o descripción..."
-                        value={busqueda}
-                        onChange={(evento) =>
-                            setBusqueda(evento.target.value)
-                        }
-                    />
 
                 </div>
 
 
-                {/* FILTROS */}
 
-                <div className="contenedor-filtros">
+                {/* ============================
+                    BUSCADOR Y FILTROS
+                ============================= */}
 
-                    <button
-                        type="button"
-                        className={
-                            filtroEstado === "todas"
-                                ? "btn-filtro activo"
-                                : "btn-filtro"
-                        }
-                        onClick={() =>
-                            setFiltroEstado("todas")
-                        }
-                    >
-                        Todas
-                    </button>
+                <FiltrosTareas
 
+                    busqueda={busqueda}
 
-                    <button
-                        type="button"
-                        className={
-                            filtroEstado === "pendiente"
-                                ? "btn-filtro activo"
-                                : "btn-filtro"
-                        }
-                        onClick={() =>
-                            setFiltroEstado("pendiente")
-                        }
-                    >
-                        Pendientes
-                    </button>
+                    setBusqueda={
+                        setBusqueda
+                    }
+
+                    filtroEstado={
+                        filtroEstado
+                    }
+
+                    setFiltroEstado={
+                        setFiltroEstado
+                    }
+
+                />
 
 
-                    <button
-                        type="button"
-                        className={
-                            filtroEstado === "completada"
-                                ? "btn-filtro activo"
-                                : "btn-filtro"
-                        }
-                        onClick={() =>
-                            setFiltroEstado("completada")
-                        }
-                    >
-                        Completadas
-                    </button>
 
-                </div>
-
-
-                {/* LISTA DE TAREAS */}
+                {/* ============================
+                    TARJETAS
+                ============================= */}
 
                 <div id="lista-tareas">
 
+
                     {tareasFiltradas.length === 0 ? (
 
+
                         <div className="sin-tareas">
+
                             <p>
+
                                 No se encontraron tareas.
+
                             </p>
+
                         </div>
+
 
                     ) : (
 
-                        tareasFiltradas.map((tarea) => {
 
-                            const completada =
-                                tarea.estado === "Completada";
+                        tareasFiltradas.map(
+                            (tarea) => (
 
-                            return (
 
-                                <div
-                                    key={tarea.id}
-                                    className={
-                                        `tarjeta-tarea prioridad-${tarea.prioridad.toLowerCase()} ${
-                                            completada
-                                                ? "tarea-completada"
-                                                : ""
-                                        }`
+                                <TarjetaTarea
+
+                                    key={
+                                        tarea.id
                                     }
-                                >
 
-                                    <div className="cabecera-tarea">
+                                    tarea={
+                                        tarea
+                                    }
 
-                                        <h3>
-                                            {tarea.titulo}
-                                        </h3>
+                                    completarTarea={
+                                        completarTarea
+                                    }
 
-                                        <span
-                                            className={
-                                                `etiqueta prioridad-${tarea.prioridad.toLowerCase()}`
-                                            }
-                                        >
-                                            {tarea.prioridad}
-                                        </span>
+                                    eliminarTarea={
+                                        eliminarTarea
+                                    }
 
-                                    </div>
+                                />
 
 
-                                    <p className="descripcion-tarea">
+                            )
+                        )
 
-                                        {
-                                            tarea.descripcion ||
-                                            "Sin descripción"
-                                        }
-
-                                    </p>
-
-
-                                    <div className="informacion-tarea">
-
-                                        <span>
-
-                                            <strong>
-                                                Fecha límite:
-                                            </strong>{" "}
-
-                                            {
-                                                tarea.fecha_limite ||
-                                                "Sin fecha"
-                                            }
-
-                                        </span>
-
-
-                                        <span
-                                            className={
-                                                completada
-                                                    ? "estado estado-completada"
-                                                    : "estado estado-pendiente"
-                                            }
-                                        >
-                                            {tarea.estado}
-                                        </span>
-
-                                    </div>
-
-
-                                    {/* ACCIONES */}
-
-                                    <div className="acciones-tarea">
-
-                                        {!completada && (
-
-                                            <button
-                                                type="button"
-                                                className="btn-completar"
-                                                onClick={() =>
-                                                    completarTarea(tarea.id)
-                                                }
-                                            >
-                                                Completar
-                                            </button>
-
-                                        )}
-
-                                    </div>
-
-                                </div>
-
-                            );
-                        })
 
                     )}
 
+
                 </div>
+
 
             </section>
 
+
         </main>
+
     );
+
 }
+
 
 export default App;
