@@ -1,0 +1,209 @@
+ <!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Las Tareas de las Ingenierías Colaborativas</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <main class="contenedor-principal">
+
+        <!-- ENCABEZADO -->
+        <header class="encabezado">
+            <span class="subtitulo-superior">
+                GESTIÓN Y ORGANIZACIÓN
+            </span>
+
+            <h1>
+                Las Tareas de las
+                <span>Ingenierías Colaborativas</span>
+            </h1>
+
+            <p>
+                Organiza, consulta y administra tus actividades en un solo lugar.
+            </p>
+        </header>
+
+
+        <!-- NUEVA TAREA -->
+        <section class="panel formulario-panel">
+
+            <div class="titulo-seccion">
+                <div>
+                    <span class="numero-seccion">01</span>
+                    <h2>Nueva tarea</h2>
+                </div>
+
+                <p>Registra una nueva actividad</p>
+            </div>
+
+
+            <form id="form-tarea">
+
+                <div class="campo campo-completo">
+
+                    <label for="titulo">
+                        Título
+                    </label>
+
+                    <input
+                        type="text"
+                        id="titulo"
+                        placeholder="Escribe el título de la tarea"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="campo campo-completo">
+
+                    <label for="descripcion">
+                        Descripción
+                    </label>
+
+                    <textarea
+                        id="descripcion"
+                        placeholder="Describe brevemente la actividad"
+                    ></textarea>
+
+                </div>
+
+
+                <div class="fila-formulario">
+
+                    <div class="campo">
+
+                        <label for="fecha_limite">
+                            Fecha límite
+                        </label>
+
+                        <input
+                            type="date"
+                            id="fecha_limite"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="prioridad">
+                            Prioridad
+                        </label>
+
+                        <select id="prioridad">
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn-agregar"
+                >
+                    Agregar tarea
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- TAREAS -->
+        <section class="panel tareas-panel">
+
+            <div class="titulo-seccion">
+
+                <div>
+                    <span class="numero-seccion">02</span>
+                    <h2>Mis tareas</h2>
+                </div>
+
+                <p>Consulta y administra tus actividades</p>
+
+            </div>
+
+
+            <!-- BUSCADOR -->
+            <div class="contenedor-buscador">
+
+                <label for="buscador">
+                    Buscar
+                </label>
+
+                <input
+                    type="text"
+                    id="buscador"
+                    placeholder="Buscar por título o descripción..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- FILTROS -->
+            <div class="contenedor-filtros">
+
+                <button
+                    type="button"
+                    class="btn-filtro activo"
+                    data-estado="Todas"
+                >
+                    Todas
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-filtro"
+                    data-estado="Pendiente"
+                >
+                    Pendientes
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-filtro"
+                    data-estado="Completada"
+                >
+                    Completadas
+                </button>
+
+            </div>
+
+
+            <!-- LISTA DE TAREAS -->
+            <div id="lista-tareas">
+
+                <div class="sin-tareas">
+                    <p>No hay tareas cargadas.</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer class="pie">
+            Las Tareas de las Ingenierías Colaborativas
+        </footer>
+
+    </main>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

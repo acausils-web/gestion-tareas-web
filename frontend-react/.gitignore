@@ -1,0 +1,37 @@
+ # Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entorno virtual de Python
+venv/
+backend/venv/
+
+# Base de datos local
+*.db
+*.sqlite
+*.sqlite3
+
+# Node / React
+node_modules/
+frontend-react/node_modules/
+
+# Compilación de Vite
+dist/
+frontend-react/dist/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# VS Code
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
